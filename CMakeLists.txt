@@ -1,8 +1,12 @@
 cmake_minimum_required (VERSION 3.5)
 
-project (test_avl)
-add_library (avl src/avl.c)
-include_directories ("${PROJECT_SOURCE_DIR}/include")
+project(my_test_avl)
+set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
+set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 
-add_executable (test_avl src/test_avl.c)
-target_link_libraries (test_avl avl)
+add_library(avl ${SRC_DIR}/avl.c ${INCLUDE_DIR}/avl.h)
+target_include_directories(avl PUBLIC ${INCLUDE_DIR})
+add_executable(test_avl ${SRC_DIR}/test_avl.c)
+target_compile_options(test_avl PUBLIC -Wall -Wextra -Wpedantic -g) 
+target_include_directories(test_avl PUBLIC ${INCLUDE_DIR})
+target_link_libraries(test_avl PUBLIC avl)
