@@ -10,6 +10,16 @@ node_t *init_node(const void *data)
     return new_node;
 }
 
+tree_t *init_tree(cmp_data_f cmp_data, print_data_f print_data, free_data_f free_data)
+{
+    tree_t *tree =  malloc(sizeof(tree_t));
+    tree->root = NULL;
+    tree->cmp_data = cmp_data;
+    tree->print_data = print_data;
+    tree->free_data = free_data;
+    return tree;
+}
+
 int get_max_height(int a, int b)
 {
     return(a > b) ? a : b;
@@ -47,12 +57,21 @@ status_t add_data_to_tree(tree_t *tree, const void *data)
 {
     node_t *new_root;
     
-    new_root = insert(tree, tree->root, data);
-
-    if(NULL != new_root)
+    if(NULL == tree->root)
     {
-        tree->root = new_root;
+        tree->root = init_node(data);
         return 0;
+    }
+    else
+    {
+        new_root = insert(tree, tree->root, data);
+
+        if(NULL != new_root)
+        {
+            tree->root = new_root;
+            return 0;
+        }
+
     }
 
     return -1;
@@ -65,11 +84,14 @@ node_t *insert(tree_t *tree, node_t *node, const void *data)
         return init_node(data);
     }
 
-    if(tree->cmp_data(data, node->data) < 0)
+    int retval = tree->cmp_data(data, node->data);
+
+    if(retval < 0)
     {
+
         node->left = insert(tree, node->left, data);
     }
-    else if(tree->cmp_data(data, node->data) > 0)
+    else if(retval > 0)
     {
         node->right = insert(tree, node->right, data);
     }
@@ -78,9 +100,18 @@ node_t *insert(tree_t *tree, node_t *node, const void *data)
         return node;
     }
 
-    node->height = get_max_height(node->left->height, node->right->height) + 1;
+    int balance;    
 
-    int balance = node->left->height - node->right->height;
+    if(NULL == node->left || NULL == node->right)
+    {
+        node->height = 1;
+        balance = 0;
+    }
+    else
+    {
+        node->height = get_max_height(node->left->height, node->right->height) + 1;
+        balance = node->left->height - node->right->height;
+    }
 
     if(balance > 1 && tree->cmp_data(data, node->left->data) < 0)
     {
@@ -105,4 +136,26 @@ node_t *insert(tree_t *tree, node_t *node, const void *data)
     }
 
     return node;
+}
+
+void display_tree(tree_t *tree)
+{
+    if(NULL == tree)
+    {
+        return;
+    }
+
+    r_display_tree(tree, tree->root);
+}
+
+void r_display_tree(tree_t *tree, node_t *node)
+{
+    if(NULL == node)
+    {
+        return;
+    }
+
+    r_display_tree(tree, node->left);
+    tree->print_data(node->data);
+    r_display_tree(tree, node->right);
 }

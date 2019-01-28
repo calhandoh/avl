@@ -34,5 +34,6 @@ status_t rm_data_from_tree(tree_t *tree, void *data);
 node_t *rotate_right(node_t *node);
 node_t *rotate_left(node_t *node);
 void display_tree(tree_t *tree);
+void r_display_tree(tree_t *tree, node_t *node);
 void destroy_tree(tree_t *tree);
 #endif
